@@ -1,0 +1,31 @@
+{"timestamp":"2026-10-29T09:40:00Z","level":"INFO","source":"observer","event":"system_metric","cpu":54,"mem":61}
+{"timestamp":"2026-10-29T09:40:30Z","level":"WARN","source":"observer","event":"system_metric","cpu":76,"mem":74}
+{"timestamp":"2026-10-29T09:41:00Z","level":"WARN","source":"observer","event":"system_metric","cpu":83,"mem":81}
+{"timestamp":"2026-10-29T09:41:30Z","level":"ERROR","source":"observer","event":"system_metric","cpu":91,"mem":90}
+{"timestamp":"2026-10-29T09:42:00Z","level":"ERROR","source":"web","student":"S104","event":"submit","latencyMs":2300,"status":500,"error":"request timeout"}
+{"timestamp":"2026-10-29T09:42:10Z","level":"ERROR","source":"web","student":"S118","event":"submit","latencyMs":2140,"status":500,"error":"internal server error"}
+{"timestamp":"2026-10-29T09:42:20Z","level":"ERROR","source":"web","student":"S129","event":"login","latencyMs":1800,"status":429,"error":"rate limit exceeded"}
+{"timestamp":"2026-10-29T09:42:30Z","level":"WARN","source":"db","event":"db_query","dbQueryMs":742,"status":200}
+{"timestamp":"2026-10-29T09:42:40Z","level":"WARN","source":"db","event":"db_query","dbQueryMs":813,"status":200}
+{"timestamp":"2026-10-29T09:42:50Z","level":"ERROR","source":"db","event":"lock_wait","dbQueryMs":1200,"status":200,"error":"deadlock detected"}
+{"timestamp":"2026-10-29T09:43:00Z","level":"WARN","source":"lb","event":"gateway_error","status":502,"error":"upstream reset"}
+{"timestamp":"2026-10-29T09:43:10Z","level":"WARN","source":"web","student":"S108","event":"save_answer","latencyMs":1950,"status":504,"error":"timeout"}
+{"timestamp":"2026-10-29T09:43:20Z","level":"WARN","source":"web","student":"S132","event":"submit","latencyMs":1830,"status":503,"error":"service unavailable"}
+{"timestamp":"2026-10-29T09:43:30Z","level":"ERROR","source":"auth","student":"S137","event":"token_refresh","status":401,"error":"session expired"}
+{"timestamp":"2026-10-29T09:43:40Z","level":"WARN","source":"thirdparty","event":"proctoring_upload","status":500,"error":"provider timeout"}
+{"timestamp":"2026-10-29T09:43:50Z","level":"WARN","source":"observer","event":"system_metric","cpu":95,"mem":92}
+{"timestamp":"2026-10-29T09:44:00Z","level":"ERROR","source":"web","student":"S115","event":"submit","latencyMs":2700,"status":500,"error":"request timeout"}
+{"timestamp":"2026-10-29T09:44:10Z","level":"WARN","source":"web","student":"S145","event":"load_question","latencyMs":1600,"status":200}
+{"timestamp":"2026-10-29T09:44:20Z","level":"WARN","source":"web","student":"S140","event":"save_answer","latencyMs":1740,"status":500,"error":"database unavailable"}
+{"timestamp":"2026-10-29T09:44:30Z","level":"WARN","source":"db","event":"db_query","dbQueryMs":980,"status":200}
+{"timestamp":"2026-10-29T09:44:40Z","level":"WARN","source":"db","event":"connection_pool","dbPoolUsed":92,"dbPoolMax":100}
+{"timestamp":"2026-10-29T09:44:50Z","level":"ERROR","source":"web","student":"S143","event":"submit","latencyMs":3900,"status":500,"error":"request timeout"}
+{"timestamp":"2026-10-29T09:45:00Z","level":"ERROR","source":"web","student":"S111","event":"submit","latencyMs":2600,"status":503,"error":"upstream unavailable"}
+{"timestamp":"2026-10-29T09:45:10Z","level":"ERROR","source":"web","student":"S120","event":"login","latencyMs":2100,"status":429,"error":"too many requests"}
+{"timestamp":"2026-10-29T09:45:20Z","level":"WARN","source":"web","student":"S150","event":"submit","latencyMs":2500,"status":500,"error":"internal server error"}
+{"timestamp":"2026-10-29T09:45:30Z","level":"WARN","source":"observer","event":"system_metric","cpu":89,"mem":88}
+{"timestamp":"2026-10-29T09:45:40Z","level":"WARN","source":"network","student":"S134","event":"packet_loss","rttMs":622,"packetLoss":6.4,"status":200}
+{"timestamp":"2026-10-29T09:45:50Z","level":"WARN","source":"network","student":"S122","event":"offline","rttMs":744,"packetLoss":5.1,"status":200}
+{"timestamp":"2026-10-29T09:46:00Z","level":"WARN","source":"observer","event":"system_metric","cpu":88,"mem":84}
+{"timestamp":"2026-10-29T09:46:30Z","level":"INFO","source":"observer","event":"assessment_submitted","student":"S104","status":200,"msg":"assessment submitted"}
+{"timestamp":"2026-10-29T09:46:50Z","level":"INFO","source":"observer","event":"assessment_submitted","student":"S118","status":200,"msg":"assessment submitted"}

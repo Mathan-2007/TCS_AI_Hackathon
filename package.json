@@ -1,0 +1,17 @@
+{
+  "name": "tcs-ai-hackathon",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install": "npm --prefix examtrace/backend install && npm --prefix examtrace/frontend install && npm --prefix exam-observer-lab install && python3 -m venv exam_incident_ai/.venv && . exam_incident_ai/.venv/bin/activate && pip install -r exam_incident_ai/requirements.txt",
+    "dev": "concurrently -n examtrace,monitor -c cyan,magenta \"CHOKIDAR_USEPOLLING=true npm --prefix examtrace run dev\" \"npm --prefix exam-observer-lab start\"",
+    "start": "concurrently -n examtrace,monitor -c cyan,magenta \"CHOKIDAR_USEPOLLING=true npm --prefix examtrace run dev\" \"npm --prefix exam-observer-lab start\"",
+    "test-examtrace": "npm --prefix examtrace test",
+    "monitor": "npm --prefix exam-observer-lab start",
+    "ai-train": "cd exam_incident_ai && python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt && python generate_data.py && python train.py",
+    "ai-analyze": "cd exam_incident_ai && . .venv/bin/activate && python analyze.py data/samples/sample_submit_surge_1200_on_400.csv --capacity 400 --anchor 10:00"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
