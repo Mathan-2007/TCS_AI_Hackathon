@@ -1,0 +1,6 @@
+# Local runtime logs: keep them out of Git
+exam-observer-lab/logs/*.jsonl
+exam-observer-lab/logs/*.log
+
+# Optional: keep generated artifacts local
+*.local
