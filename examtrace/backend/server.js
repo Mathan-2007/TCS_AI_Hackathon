@@ -1,7 +1,13 @@
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./src/config/db');
+const { seedDemoData } = require('./src/utils/seed');
+
+const aiPython = path.resolve(__dirname, '..', '..', 'exam_incident_ai', '.venv', 'bin', 'python');
+if (!process.env.PYTHON_BIN && fs.existsSync(aiPython)) process.env.PYTHON_BIN = aiPython;
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
@@ -23,7 +29,13 @@ app.use((err, _req, res, _next) => {
 
 const PORT = process.env.PORT || 5000;
 connectDB()
-  .then(() => app.listen(PORT, () => console.log(`ExamTrace API running on http://localhost:${PORT}`)))
+  .then(async () => {
+    if (process.env.AUTO_SEED === 'true') {
+      const result = await seedDemoData();
+      console.log(`Auto-seed status: ${result ? 'demo data loaded' : 'nothing to seed'}`);
+    }
+    app.listen(PORT, () => console.log(`ExamTrace API running on http://localhost:${PORT}`));
+  })
   .catch((e) => {
     console.error('Could not connect to MongoDB:', e.message);
     process.exit(1);

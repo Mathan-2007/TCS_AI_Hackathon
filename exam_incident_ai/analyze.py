@@ -14,6 +14,35 @@ from common import RAW_COLS, RT_BAD_MS, make_features, estimate_capacity
 from planner import recommend, PREVENTION, fmt_t
 
 
+def parse_anchor(value):
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if ":" in text:
+        try:
+            hh, mm = [int(part) for part in text.split(":", 1)]
+            if 0 <= hh <= 23 and 0 <= mm <= 59:
+                return f"{hh:02d}:{mm:02d}"
+        except ValueError:
+            pass
+    try:
+        hours = float(text)
+        if 0 <= hours <= 23.99:
+            hh = int(hours)
+            mm = round((hours - hh) * 60)
+            if mm == 60:
+                hh += 1
+                mm = 0
+            if hh == 24:
+                hh = 0
+            return f"{hh:02d}:{mm:02d}"
+    except ValueError:
+        return None
+    return None
+
+
 def load(path):
     df = pd.read_csv(path)
     missing = [c for c in RAW_COLS if c not in df.columns and c != "complaint_text"]
@@ -103,14 +132,17 @@ def main():
         over = w[w["active_users"] > cap]
         anchor = (over["timestamp"].iloc[0] if len(over) else w["timestamp"].iloc[0])
         if a.anchor:
-            hh, mm = map(int, a.anchor.split(":"))
+            parsed_anchor = parse_anchor(a.anchor)
+            if parsed_anchor is None:
+                raise SystemExit(f"Invalid anchor time: {a.anchor}. Use HH:MM like 10:00 or a decimal hour like 10.00.")
+            hh, mm = map(int, parsed_anchor.split(":"))
             anchor = anchor.replace(hour=hh, minute=mm, second=0)
         ev = evidence(df, i0, i1, healthy, cap)
         ctx = dict(capacity=cap, anchor=anchor, rt_bad=RT_BAD_MS)
         recs = recommend(cause, ev, ctx)
         summary.append((k, cause, conf, ev))
         L += [f"## Incident {k}: {fmt_t(ev['start'])} to {fmt_t(ev['end'])} ({ev['minutes']} min)", "",
-              f"**Most likely root cause: `{cause}`** (model confidence {conf:.0%})", ""]
+              f"**Likely root cause: `{cause}`** (model confidence {conf:.0%})", ""]
         alt = share.sort_values(ascending=False).iloc[1:3]
         alt = [f"{c} {v:.0%}" for c, v in alt.items() if v > 0.05]
         if alt:

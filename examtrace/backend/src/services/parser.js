@@ -8,17 +8,17 @@ const ALIASES = {
   ts: ['timestamp', 'ts', 'time', '@timestamp', 'datetime', 'date'],
   level: ['level', 'severity', 'loglevel'],
   source: ['source', 'service', 'component', 'origin'],
-  student: ['student', 'student_id', 'studentid', 'user', 'user_id', 'userid'],
+  student: ['student', 'student_id', 'studentid', 'student_ref', 'user', 'user_id', 'userid'],
   session: ['session', 'session_id', 'sessionid', 'sid'],
-  event: ['event', 'action', 'type', 'operation'],
+  event: ['event', 'action', 'type', 'operation', 'path', 'method', 'request_id', 'scenario_label'],
   latencyMs: ['latency_ms', 'latency', 'response_time', 'response_time_ms', 'duration_ms', 'duration', 'took_ms', 'took'],
   status: ['status', 'status_code', 'http_status', 'code'],
-  cpu: ['cpu', 'cpu_percent', 'cpu_pct'],
-  mem: ['mem', 'memory', 'mem_percent', 'memory_percent'],
-  dbQueryMs: ['db_query_ms', 'query_ms', 'query_time_ms'],
-  dbPoolUsed: ['db_pool_used', 'pool_used'],
-  dbPoolMax: ['db_pool_max', 'pool_max'],
-  rttMs: ['rtt_ms', 'rtt'],
+  cpu: ['cpu', 'cpu_percent', 'cpu_pct', 'cpu_usage_pct'],
+  mem: ['mem', 'memory', 'mem_percent', 'memory_percent', 'memory_usage_pct'],
+  dbQueryMs: ['db_query_ms', 'query_ms', 'query_time_ms', 'db_query_time_ms'],
+  dbPoolUsed: ['db_pool_used', 'pool_used', 'db_pool_utilization_pct'],
+  dbPoolMax: ['db_pool_max', 'pool_max', 'disk_io_utilization_pct'],
+  rttMs: ['rtt_ms', 'rtt', 'network_latency_ms'],
   packetLoss: ['packet_loss', 'loss', 'packet_loss_pct'],
   browser: ['browser', 'user_agent', 'ua'],
   deviceRamGb: ['device_ram_gb', 'ram_gb', 'ram'],
@@ -42,7 +42,15 @@ function toDate(v) {
     const n = Number(v);
     return new Date(n < 1e12 ? n * 1000 : n);
   }
-  const d = new Date(v);
+
+  const text = String(v).trim();
+  if (!text) return null;
+
+  // Timestamps in the source logs are usually server-generated UTC values.
+  // If a source string omits a timezone offset, preserve the intended instant
+  // by treating it as UTC rather than interpreting it in the local timezone.
+  const hasExplicitTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(text);
+  const d = new Date(hasExplicitTimezone ? text : `${text}Z`);
   return Number.isNaN(d.getTime()) ? null : d;
 }
 

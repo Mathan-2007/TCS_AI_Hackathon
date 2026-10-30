@@ -9,6 +9,7 @@ export default function Uploads() {
   const [file, setFile] = useState(null);
   const [examName, setExamName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState('');
   const [drag, setDrag] = useState(false);
   const input = useRef();
@@ -40,6 +41,20 @@ export default function Uploads() {
     load();
   };
 
+  const clearDemo = async () => {
+    if (!window.confirm('Clear all uploaded logs, demo complaints and generated student accounts? This cannot be undone.')) return;
+    setClearing(true);
+    setError('');
+    try {
+      await api.del('/logs/demo');
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setClearing(false);
+    }
+  };
+
   return (
     <>
       <PageHead title="Log files" sub="Upload a backend log from an exam and let the system highlight the likely student issues in plain language." />
@@ -59,15 +74,18 @@ export default function Uploads() {
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && input.current.click()}
         >
-          <input ref={input} type="file" accept=".log,.txt,.json,.csv" hidden onChange={(e) => setFile(e.target.files[0])} />
+          <input ref={input} type="file" accept=".log,.txt,.json,.jsonl,.csv" hidden onChange={(e) => setFile(e.target.files[0])} />
           {file ? <strong>{file.name} <span className="muted">({(file.size / 1024).toFixed(0)} KB)</span></strong> : <strong>Drop a log file here or click to browse</strong>}
-          <span className="muted small">.log, .txt, .json or .csv, up to 100 MB</span>
+          <span className="muted small">.log, .txt, .json, .jsonl or .csv, up to 100 MB</span>
         </div>
         <label>Exam name
           <input value={examName} onChange={(e) => setExamName(e.target.value)} placeholder="Data Structures - Internal Test 2" />
         </label>
         <ErrorNote error={error} />
-        <button className="btn primary" disabled={busy}>{busy ? 'Analyzing logs' : 'Upload and analyze'}</button>
+        <div className="inline-form">
+          <button className="btn primary" disabled={busy}>{busy ? 'Analyzing logs' : 'Upload and analyze'}</button>
+          <button type="button" className="btn" disabled={clearing} onClick={clearDemo}>{clearing ? 'Clearing...' : 'Clear demo data'}</button>
+        </div>
       </form>
 
       <section className="panel">

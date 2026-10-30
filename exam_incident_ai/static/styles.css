@@ -1,0 +1,144 @@
+:root {
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --ink: #162235;
+  --muted: #68758a;
+  --line: #dfe7f1;
+  --accent: #1754d6;
+  --accent-soft: #ecf2ff;
+  --danger: #b42318;
+  --success: #027a48;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+  color: var(--ink);
+}
+
+.page-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 18px 48px;
+}
+
+.topbar {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+h1, h2 {
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 20px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.04);
+  padding: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #fff;
+  font: inherit;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+button.primary {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.primary:hover {
+  filter: brightness(1.05);
+}
+
+.status {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.status.error { color: var(--danger); }
+.status.success { color: var(--success); }
+
+.output-panel {
+  min-height: 500px;
+}
+
+.image-wrap {
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  background: var(--accent-soft);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.image-wrap img {
+  max-width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+.hidden { display: none; }
+
+.result-box {
+  margin: 0;
+  min-height: 300px;
+  max-height: 620px;
+  overflow: auto;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; }
+}

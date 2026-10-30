@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Incident AI</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">AI incident model</p>
+          <h1>Exam Portal Root-Cause Analyzer</h1>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="panel form-panel">
+          <h2>Model input</h2>
+          <form id="analyze-form" enctype="multipart/form-data">
+            <label class="field">
+              <span>CSV file</span>
+              <input id="file-input" type="file" name="file" accept=".csv" />
+            </label>
+
+            <label class="field">
+              <span>Or use a sample</span>
+              <select id="sample-select" name="sample">
+                <option value="">Choose a built-in sample</option>
+              </select>
+            </label>
+
+            <div class="row">
+              <label class="field">
+                <span>Safe capacity</span>
+                <input id="capacity" name="capacity" type="number" min="1" placeholder="400" />
+              </label>
+
+              <label class="field">
+                <span>Anchor time</span>
+                <input id="anchor" name="anchor" type="text" placeholder="10:00" />
+              </label>
+            </div>
+
+            <button type="submit" class="primary">Analyze incident</button>
+          </form>
+          <p id="status" class="status">Ready to analyze.</p>
+        </section>
+
+        <section class="panel output-panel">
+          <h2>Model output</h2>
+          <div id="image-wrap" class="image-wrap hidden"></div>
+          <pre id="result" class="result-box">No output yet.</pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

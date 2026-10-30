@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const connectDB = require('../config/db');
 const User = require('../models/User');
 const LogUpload = require('../models/LogUpload');
+const LogEvent = require('../models/LogEvent');
 const Complaint = require('../models/Complaint');
 const { ingestLog } = require('../services/ingest');
 const { runComplaintAnalysis } = require('../services/complaintService');
@@ -25,7 +26,35 @@ const DEMO_COMPLAINTS = [
   ['S160', 'Lavanya G', '2026-10-20T09:40:00Z', 'slow', 'I felt it was slow for me.'],
 ];
 
-(async () => {
+async function clearDemoData({ keepAdmin = true } = {}) {
+  const [uploads, events, complaints, students] = await Promise.all([
+    LogUpload.deleteMany({}),
+    LogEvent.deleteMany({}),
+    Complaint.deleteMany({}),
+    User.deleteMany({ role: 'student' }),
+  ]);
+
+  if (keepAdmin) {
+    const admin = await User.findOne({ email: 'admin@exam.local' });
+    if (!admin) {
+      await User.create({
+        email: 'admin@exam.local',
+        name: 'Exam Cell Admin',
+        role: 'admin',
+        passwordHash: await bcrypt.hash('Admin@123', 10),
+      });
+    }
+  }
+
+  return {
+    uploads: uploads.deletedCount ?? 0,
+    events: events.deletedCount ?? 0,
+    complaints: complaints.deletedCount ?? 0,
+    students: students.deletedCount ?? 0,
+  };
+}
+
+async function seedDemoData() {
   await connectDB();
 
   const upsertUser = async (email, data) =>
@@ -53,5 +82,19 @@ const DEMO_COMPLAINTS = [
 
   console.log('\nAdmin login:   admin@exam.local / Admin@123');
   console.log('Student login: s105@student.local / Student@123');
-  await mongoose.disconnect();
-})().catch((e) => { console.error(e); process.exit(1); });
+  return { uploadId: upload._id, complaintCount: DEMO_COMPLAINTS.length };
+}
+
+if (require.main === module) {
+  (async () => {
+    try {
+      await seedDemoData();
+      await mongoose.disconnect();
+    } catch (e) {
+      console.error(e);
+      process.exit(1);
+    }
+  })();
+}
+
+module.exports = { seedDemoData, clearDemoData };

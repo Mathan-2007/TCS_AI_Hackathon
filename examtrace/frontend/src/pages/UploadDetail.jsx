@@ -5,6 +5,7 @@ import { api } from '../api';
 import { fmtDateTime, fmtNumber, fmtTime } from '../causes';
 import AnalysisResult from '../components/AnalysisResult';
 import { CauseBadge, ErrorNote, Facts, PageHead } from '../components/ui';
+import { extractAiVerdict } from '../utils/aiVerdict';
 
 function Incident({ inc }) {
   const [open, setOpen] = useState(false);
@@ -28,6 +29,46 @@ function Incident({ inc }) {
   );
 }
 
+function renderInlineMarkdown(value = '') {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function AiReport({ content }) {
+  if (!content) return null;
+
+  return (
+    <div style={{ display: 'grid', gap: '0.6rem', lineHeight: 1.6 }}>
+      {content.split(/\n/).map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={index} style={{ height: 8 }} />;
+
+        const headingMatch = trimmed.match(/^(#+)\s+(.*)$/);
+        if (headingMatch) {
+          const level = Math.min(headingMatch[1].length + 1, 6);
+          const Tag = `h${level}`;
+          return <Tag key={index} dangerouslySetInnerHTML={{ __html: renderInlineMarkdown(headingMatch[2]) }} style={{ margin: 0 }} />;
+        }
+
+        if (/^[-*]\s+/.test(trimmed)) {
+          return (
+            <div key={index} style={{ marginLeft: '1rem', display: 'flex', gap: '0.5rem' }}>
+              <span>•</span>
+              <span dangerouslySetInnerHTML={{ __html: renderInlineMarkdown(trimmed.replace(/^[-*]\s+/, '')) }} />
+            </div>
+          );
+        }
+
+        return <p key={index} style={{ margin: 0 }} dangerouslySetInnerHTML={{ __html: renderInlineMarkdown(trimmed) }} />;
+      })}
+    </div>
+  );
+}
+
 export default function UploadDetail() {
   const { id } = useParams();
   const [doc, setDoc] = useState(null);
@@ -35,10 +76,15 @@ export default function UploadDetail() {
   const [sid, setSid] = useState('');
   const [student, setStudent] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [aiError, setAiError] = useState('');
   const [logs, setLogs] = useState(null);
   const [filter, setFilter] = useState({ student: '', level: '', q: '' });
 
   useEffect(() => { api.get(`/logs/${id}`).then(setDoc).catch((e) => setError(e.message)); }, [id]);
+
+  const aiVerdict = useMemo(() => extractAiVerdict(aiResult?.output), [aiResult]);
 
   const chart = useMemo(
     () => (doc?.summary?.windows || []).map((w) => ({ ...w, time: fmtTime(w.ts), k: new Date(w.ts).getTime() })),
@@ -53,6 +99,19 @@ export default function UploadDetail() {
     try { setStudent(await api.get(`/logs/${id}/student/${encodeURIComponent(studentId.trim())}`)); }
     catch (e) { setError(e.message); }
     finally { setBusy(false); }
+  };
+
+  const analyzeWithAi = async () => {
+    setAiBusy(true);
+    setAiError('');
+    try {
+      const result = await api.post(`/logs/${id}/ai`, { capacity: 400, anchor: '10:00' });
+      setAiResult(result);
+    } catch (e) {
+      setAiError(e.message);
+    } finally {
+      setAiBusy(false);
+    }
   };
 
   const searchLogs = async (e) => {
@@ -120,6 +179,46 @@ export default function UploadDetail() {
         )}
         <ErrorNote error={error} />
         {student && <AnalysisResult result={student} />}
+      </section>
+
+      <section className="panel">
+        <h3>AI root-cause model</h3>
+        <div className="inline-form">
+          <button className="btn primary" onClick={analyzeWithAi} disabled={aiBusy}>{aiBusy ? 'Running model…' : 'Analyze with AI model'}</button>
+        </div>
+        <ErrorNote error={aiError} />
+        {aiResult && (
+          <div className="result" style={{ marginTop: '1rem' }}>
+            {aiResult.imageData && <img src={aiResult.imageData} alt="AI incident timeline" style={{ maxWidth: '100%', borderRadius: 8, marginBottom: 12 }} />}
+
+            {aiVerdict && (
+              <div style={{
+                display: 'grid',
+                gap: '0.45rem',
+                marginBottom: '1rem',
+                padding: '0.9rem 1rem',
+                border: '1px solid rgba(14, 124, 134, 0.25)',
+                borderLeft: '5px solid var(--accent)',
+                borderRadius: 10,
+                background: 'rgba(14, 124, 134, 0.05)'
+              }}>
+                <span className="muted small" style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}>Likely cause</span>
+                <strong style={{ fontSize: '1.2rem', color: 'var(--accent)' }}>
+                  {aiVerdict.cause ? aiVerdict.cause.replace(/_/g, ' ') : 'AI detected a likely issue'}
+                </strong>
+                <span className="muted">{aiVerdict.heading}</span>
+                {aiVerdict.confidence != null && (
+                  <span style={{ fontWeight: 700 }}>Confidence: {aiVerdict.confidence}%</span>
+                )}
+              </div>
+            )}
+
+            <div style={{ borderLeft: '4px solid var(--accent)', paddingLeft: '0.9rem' }}>
+              <h4 style={{ margin: '0 0 0.75rem' }}>Model classification</h4>
+              <AiReport content={aiResult.output || 'No output returned.'} />
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="panel">
